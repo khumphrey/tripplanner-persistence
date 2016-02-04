@@ -6,6 +6,9 @@ var Restaurant = models.Restaurant;
 var Activity = models.Activity;
 var Promise = require('bluebird');
 
+// add route to days
+router.use('/api/days', require('./api/days'));
+
 router.get('/', function(req, res) {
   Promise.all([
     Hotel.find(),
@@ -18,8 +21,10 @@ router.get('/', function(req, res) {
         templateRestaurants: dbRestaurants,
         templateActivities: dbActivities
       });
-    })
+    });
 
-})
+});
+
+
 
 module.exports = router;

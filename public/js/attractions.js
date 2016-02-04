@@ -70,6 +70,9 @@ var attractionsModule = (function(){
   // a circular dependency… probably can be improved! Maybe higher-order func?
 
   Attraction.prototype.delete = function() {
+    //need to delete from day in Mongoose
+
+    
     this.eraseItineraryItem().eraseMarker();
     var day = daysModule.getCurrentDay();
     switch (this.type) {
