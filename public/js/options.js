@@ -24,6 +24,8 @@ $(function(){
     var $button = $(this);
     var attraction = $button.siblings('select').find(':selected').data();
     daysModule.addAttraction(attraction);
+    //fix the above! it isn't creating the right thing
+    //needs to be feeding it an object, not just ID
   }
 
 });

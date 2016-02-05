@@ -93,6 +93,16 @@ var daysModule = (function() {
 
     function deleteCurrentDay() {
         console.log('will delete this day:', currentDay);
+        $.ajax({
+          method: 'DELETE',
+          url: '/api/days/' + currentDay.dayID,
+          success: function() {
+            console.log("deleted!")
+          },
+          error: function(error) {
+            console.error(error.message);
+          }
+        })
     }
 
     // jQuery event binding
@@ -110,47 +120,55 @@ var daysModule = (function() {
           //populate from Mongoose and add these to [] as well as page
         $.get('/api/days')
           .then(function(mDays) {
+            // console.log(mDays);
               //for each mDay make it a Day() 
               if (mDays.length) {
                   mDays.forEach(function(mday) {
                     //first make all attractions new attractions
-                    new Day(mday._id, mday.number);
-                    currentDay = days[0];
-                    currentDay.switchTo();
+                    var newDay = new Day(mday._id, mday.number);
+                    if (currentDay) {
+                      newDay.switchTo();
+                    }
+                    
+                    currentDay = days[days.length-1];
+                    
                     if (mday.hotel) {
-                      console.log('hotel', mday.hotel)
                       methods.addAttraction(mday.hotel, 'hotel');}
-                    if (mday.restaurants.length) {
-                      console.log('rest', mday.restaurants)
 
+                    if (mday.restaurants.length) {
                       mday.restaurants.forEach(function (restaurant) {
                         methods.addAttraction(restaurant, 'restaurant');
                       })
                     }
                     if(mday.activities.length) {
-                      console.log('act', mday.activities)
                       mday.activities.forEach(function (activity) {
                         methods.addAttraction(activity, 'activity');
                       })
                     }
                   })
+                  days[0].switchTo();
 
               } else {
                   $(addDay);
               }
           })
+
       },
 
       addAttraction: function(attractionData, type) {
-        // console.log(attractionData)
+        //need to fix this create call; right now it's not creating right object
+        //sometimes--where does it get called from?
+        if (type) {
+          attractionData.type = type;
+        }
         var attraction = attractionsModule.create(attractionData);
         //add attraction to our day
         //current day is identified by number
-      
-        switch (type || attraction.type) {
+        // console.log(attraction.type);
+        switch (attraction.type) {
           case 'hotel':
               currentDay.hotel = attraction;
-              $.post('/api/days/' + currentDay.dayID + '/hotel/' + attractionData._id)
+              $.post('/api/days/' + currentDay.dayID + '/hotel/' + attractionData._id);
               break;
           case 'restaurant':
               currentDay.restaurants.push(attraction);
@@ -158,10 +176,10 @@ var daysModule = (function() {
               break;
           case 'activity':
               currentDay.activities.push(attraction);
-               $.post('/api/days/' + currentDay.dayID + '/activity/' + attractionData._id)
+               $.post('/api/days/' + currentDay.dayID + '/activity/' + attractionData._id);
               break;
           default:
-              console.error('bad type:', attraction);
+              console.error(type, 'bad type:', attraction);
         }
       },
 

@@ -24,6 +24,9 @@ var attractionsModule = (function(){
 
   function Attraction (data) {
     merge(data, this);
+    //this function call sometimes fails now because it is just passing an ID
+    //to the build (and draw). We need to pass an attractions object.
+    //also failing specifically with hotels
     this.buildItineraryItem().drawItineraryItem();
   }
 
@@ -37,7 +40,7 @@ var attractionsModule = (function(){
     $button.on('click', function () {
       self.delete();
     });
-    return this;
+    return self;//changed 'this' to 'self'
   };
 
   Attraction.prototype.drawItineraryItem = function() {
@@ -52,6 +55,7 @@ var attractionsModule = (function(){
   };
 
   Attraction.prototype.eraseItineraryItem = function() {
+    console.log(this);
     this.$itineraryItem.detach();
     this.eraseMarker();
     return this;
@@ -89,8 +93,9 @@ var attractionsModule = (function(){
 
   var methods = {
 
+//need to focus on fixing this!
     create: function (attractionData) {
-      return new Attraction(attractionData);
+      return new Attraction(attractionData); //type here
     }
 
   }

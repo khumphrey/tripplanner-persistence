@@ -6,7 +6,7 @@ var Promise = require('bluebird');
 //get all days
 router.get('/', function(req, res, next) {
     Day.find()
-	.populate("restaurants")
+	.populate("restaurants activities hotel")
     .then(function(days) {
         res.json(days);
     }).then(null, next);
@@ -17,6 +17,7 @@ router.get('/:id', function(req, res, next) {
     Day.findById({
             _id: req.params.id
         })
+        .populate("restaurants hotel activities")
         .then(function(day) {
             res.json(day);
         }).then(null, next);
@@ -25,10 +26,34 @@ router.get('/:id', function(req, res, next) {
 //delete a day
 router.delete('/:id', function(req, res, next) {
     Day.findOneAndRemove({
-            _id: req.params.id
+        _id: req.params.id
         })
         .then(function(data) {
             res.json(data);
+        })
+        .then(null, next);
+});
+
+router.delete('/:id/activity/:activityid', function(req, res, next) {
+    Day.findOneAndUpdate({_id: req.params.id}, {$pull: {activities: req.params.activityid}} )
+        .then(function(data) {
+          res.json(data);
+        }).then(null, next);
+});
+
+router.delete('/:id/restaurant/:restaurantid', function(req, res, next) {
+    Day.findOneAndUpdate({_id: req.params.id}, {$pull: {restaurants: req.params.restaurantid}} )
+        .then(function(data) {
+          res.json(data);
+        })
+        .then(null, next);
+
+});
+
+router.delete('/:id/hotel/:hotelid', function(req, res, next) {
+    Day.findOneAndUpdate({_id: req.params.id}, {$unset: {hotel: req.params.hotelid}})
+        .then(function(data) {
+          res.json(data);
         })
         .then(null, next);
 });
@@ -50,21 +75,32 @@ router.post('/', function(req, res, next) {
 
 //update hotel
 router.post('/:id/hotel/:hotelid', function(req, res, next) {
-    Day.findOneAndUpdate({_id: req.params.id}, {$set: {hotels: req.params.hotelid}} )
+    Day.findOneAndUpdate({_id: req.params.id}, {$set: {hotel: req.params.hotelid}})
+        .then(function(data) {
+          res.json(data);
+        })
         .then(null, next);
 });
 
 //update restaurant
 router.post('/:id/restaurant/:restaurantid', function(req, res, next) {
-    Day.findOneAndUpdate({_id: req.params.id}, {$push: {restaurants: req.params.restaurantid}} )
+    Day.findOneAndUpdate({_id: req.params.id}, {$addToSet: {restaurants: req.params.restaurantid}} )
+        .then(function(data) {
+          res.json(data);
+        })
         .then(null, next);
+
 });
 
-//update activity
-// router.post('/:id/hotel/:hotelid', function(req, res, next) {
-//     Day.findOneAndUpdate({_id: req.params.id}, {$set: {hotels: req.params.hotelid}} )
-//         .then(null, next);
-// });
+// update activity
+router.post('/:id/activity/:activityid', function(req, res, next) {
+    Day.findOneAndUpdate({_id: req.params.id}, {$addToSet: {activities: req.params.activityid}} )
+        .then(function(data) {
+          res.json(data);
+        }).then(null, next);
+});
 
 
 module.exports = router;
+
+
